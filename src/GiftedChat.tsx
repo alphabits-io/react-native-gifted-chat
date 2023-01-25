@@ -11,6 +11,7 @@ import {
   TextStyle,
   KeyboardAvoidingView,
   LayoutChangeEvent,
+  Dimensions,
 } from 'react-native'
 import {
   ActionSheetProvider,
@@ -503,6 +504,13 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
     return this.state.messages
   }
 
+  getDimensionHeight(e: LayoutChangeEvent) {
+    if (Platform.OS === 'web') {
+      return Dimensions.get('window').height - 20
+    }
+    return e.nativeEvent.layout.height;
+  }
+
   setMaxHeight(height: number) {
     this._maxHeight = height
   }
@@ -692,6 +700,8 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
         style={[
           {
             height: this.state.messagesContainerHeight,
+            bottom: 50,
+            paddingTop: 50,
           },
           messagesContainerStyle,
         ]}
@@ -800,12 +810,13 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
   }
 
   onInitialLayoutViewLayout = (e: any) => {
-    const { layout } = e.nativeEvent
-    if (layout.height <= 0) {
-      return
-    }
+    // const { layout } = e.nativeEvent
+    // if (layout.height <= 0) {
+    //   return
+    // }
     this.notifyInputTextReset()
-    this.setMaxHeight(layout.height)
+    const height = this.getDimensionHeight(e)
+    this.setMaxHeight(height)
     const newComposerHeight = this.props.minComposerHeight
     const newMessagesContainerHeight = this.getMessagesContainerHeightWithKeyboard(
       newComposerHeight,
@@ -821,12 +832,13 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
 
   onMainViewLayout = (e: LayoutChangeEvent) => {
     // TODO: fix an issue when keyboard is dismissing during the initialization
-    const { layout } = e.nativeEvent
+    // const { layout } = e.nativeEvent
+    const height = this.getDimensionHeight(e)
     if (
-      this.getMaxHeight() !== layout.height ||
+      this.getMaxHeight() !== height ||
       this.getIsFirstLayout() === true
     ) {
-      this.setMaxHeight(layout.height)
+      this.setMaxHeight(height)
       this.setState({
         messagesContainerHeight:
           this._keyboardHeight > 0
